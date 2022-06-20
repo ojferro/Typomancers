@@ -10,9 +10,9 @@ from pygame.locals import *
 # Naming convention:
 # 'A' refers to 'me'
 # 'B' refers to 'other player'
-
-WIN_WIDTH = 1280
-WIN_HEIGHT = 960
+SCREEN_SIZE_MULTIPLIER = 1/1.5
+WIN_WIDTH = 1280*SCREEN_SIZE_MULTIPLIER
+WIN_HEIGHT = 960*SCREEN_SIZE_MULTIPLIER
 
 COLOR_PALETTE = [(74, 143, 231), (11, 57, 84), (116, 30, 153), (250, 169, 22)]
 
@@ -50,11 +50,13 @@ def Tx_msg(connection, input_str):
     else:
         connection.sendall(msg)
 
-def draw_ui():
+def draw_ui(screen):
     # Set up Screen
-    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT),pg.RESIZABLE)
     screen.fill((10, 10, 10))
     total_players = 4
+
+    #turn_stage = "preparing"
+    turn_stage = "incantation"
 
     # Draw Character Cards
     for i in range(total_players):
@@ -70,16 +72,19 @@ def draw_ui():
     pg.draw.rect(screen, COLOR_PALETTE[0], bottom_console,5)
 
     # Labels
-    print_text(screen, "Spell Incantation", top_console)
-    print_text(screen, "Spell Incantation", top_console)
+    if turn_stage == "incantation":
+        print_text(screen, "Spell Incantation", bottom_console, 0)
+   
+    if turn_stage == "preparing":
+        print_text(screen, "Spell Deck", bottom_console, 0)
 
     pg.display.flip()
 
     
-def print_text(screen, text, console):
+def print_text(screen, text, console, row):
     text_color = pg.Color('white')
     text_to_print = FONT.render(text, True, text_color)
-    screen.blit(text_to_print, (console.midleft[0]+(FONT.get_height()/2), console.topleft[1]+(FONT.get_height()/4)))
+    screen.blit(text_to_print, (console.topleft[0]+(FONT.get_height()/2), console.topleft[1]+(FONT.get_height()*row)))
 
 
 def make_rect(width_percent, height_percent, center_x_percent, center_y_percent):
@@ -140,6 +145,8 @@ def main(Tx):
     input_text = '' # What Player A is typing
     received_text = 'Sample text' # Message received from another player
 
+    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT),pg.RESIZABLE)
+
     while True:
         
         # Get keyboard input
@@ -154,7 +161,7 @@ def main(Tx):
         if not received_msg_queue.empty():
             received_text = received_msg_queue.get_nowait()
 
-        draw_ui()
+        draw_ui(screen)
         clock.tick(30)
 
 
