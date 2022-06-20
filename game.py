@@ -136,16 +136,20 @@ def main(server):
 
 
 if __name__ == '__main__':
+
+    # Read args
     if len(sys.argv) != 2:
         print("usage: %s [port] " % sys.argv[0] )
         sys.exit(0)
 
+    port = int(sys.argv[1])
+
+    # Set up socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    port = int(sys.argv[1])
-
     print("Awaiting connection...")
+
     s.bind(('', port))
     s.listen()
     (connection, addr) = s.accept() 
@@ -153,9 +157,10 @@ if __name__ == '__main__':
     print("Connection received!")
     print("Type \'exit\' to kill")
 
-    # Start the server
+    # Start the server. Spins up Rx thread
     server = Server(connection)
 
+    # Kick off main loop
     pg.init()
     main(server)
     pg.quit()
