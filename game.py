@@ -11,22 +11,24 @@ from pygame.locals import *
 # 'A' refers to 'me'
 # 'B' refers to 'other player'
 
-WIN_WIDTH = 1280/1.5
-WIN_HEIGHT = 960/1.5
+WIN_WIDTH = 1280
+WIN_HEIGHT = 960
 
-COLOR_PALETTE_A = [(74, 143, 231), (11, 57, 84), (116, 30, 153), (250, 169, 22)]
-COLOR_PALETTE_B = [(46, 41, 78), (215, 38, 61), (27, 153, 139), (244, 96, 54)]
+COLOR_PALETTE = [(74, 143, 231), (11, 57, 84), (116, 30, 153), (250, 169, 22)]
 
 pg.init()
-FONT = pg.font.Font(os.path.dirname(__file__)+"/fonts/CHNOPixelCodePro-Regular.ttf", 32)
+FONT_SIZE = 18
+FONT = pg.font.Font(os.path.dirname(__file__)+"/fonts/CHNOPixelCodePro-Regular.ttf", FONT_SIZE)
 FONT_COLOR = (255,255,255)
 
 # Queue containing received messages
 received_msg_queue = queue.Queue()
 
-def receive_msg(conn):
+def Rx_msg(connection):
+    ''' Receive message from other players '''
+
     while True:
-        received = conn.recv(1024)
+        received = connection.recv(1024)
         if not received or received == ' ':
             pass
         
@@ -39,8 +41,9 @@ def receive_msg(conn):
 
     print("Rx thread: Finished execution.")
 
-def send_msg(connection, input_str):
-        
+def Tx_msg(connection, input_str):
+    ''' Transmit message to other players'''
+
     msg = input_str.replace('b', '').encode()
     if msg == ' ':
         pass
@@ -48,40 +51,35 @@ def send_msg(connection, input_str):
         connection.sendall(msg)
 
 def draw_ui():
-    base_path = os.path.dirname(__file__)
-    font = pg.font.Font(base_path+"/fonts/CHNOPixelCodePro-Regular.ttf", 32)
-
-    #Set up Screen
+    # Set up Screen
     screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT),pg.RESIZABLE)
     screen.fill((10, 10, 10))
     total_players = 4
 
-    #Draw Character Cards
+    # Draw Character Cards
     for i in range(total_players):
         character_card = make_rect(0.18, 0.3, (1/(total_players+1))*(i+1), 0.5)
-        pg.draw.rect(screen, COLOR_PALETTE_A[0], character_card,5)
+        pg.draw.rect(screen, COLOR_PALETTE[0], character_card,5)
 
-    #Draw Top Console
+    # Draw Top Console
     top_console = make_rect(0.9, 0.3, 0.5, 0.18)
-    pg.draw.rect(screen, COLOR_PALETTE_A[0], top_console,5)
+    pg.draw.rect(screen, COLOR_PALETTE[0], top_console,5)
 
-    #Draw Bottom Console
+    # Draw Bottom Console
     bottom_console = make_rect(0.9, 0.3, 0.5, 0.82)
-    pg.draw.rect(screen, COLOR_PALETTE_A[0], bottom_console,5)
+    pg.draw.rect(screen, COLOR_PALETTE[0], bottom_console,5)
 
-    #Labels
+    # Labels
     print_text(screen, "Spell Incantation", top_console)
     print_text(screen, "Spell Incantation", top_console)
 
     pg.display.flip()
 
     
-def print_text (screen, text, console):
-    base_path = os.path.dirname(__file__)
-    font = pg.font.Font(base_path+"/fonts/CHNOPixelCodePro-Regular.ttf", 18)
+def print_text(screen, text, console):
     text_color = pg.Color('white')
-    text_to_print = font.render(text, True, text_color)
-    screen.blit(text_to_print, (console.midleft[0]+(font.get_height()/2), console.topleft[1]+(font.get_height()/4)))
+    text_to_print = FONT.render(text, True, text_color)
+    screen.blit(text_to_print, (console.midleft[0]+(FONT.get_height()/2), console.topleft[1]+(FONT.get_height()/4)))
 
 
 def make_rect(width_percent, height_percent, center_x_percent, center_y_percent):
@@ -126,10 +124,12 @@ def keyboard_input(text):
     return text, should_Tx_msg
 
 def configure():
-    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT), pg.RESIZABLE)
     clock = pg.time.Clock()
 
-    pg.key.set_repeat(500, 30)
+    repeat_key_delay = 500 # [ms] Time before the first repeat key down event is registered
+    repeat_key_interval = 30 # [ms] Time before subsequent key down event is registered
+    pg.key.set_repeat(repeat_key_delay, repeat_key_interval)
 
     return screen, clock
 
@@ -147,7 +147,7 @@ def main(Tx):
 
         # Broadcast message to other players if needed
         if should_Tx_msg:
-            send_msg(Tx, input_text)
+            Tx_msg(Tx, input_text)
             input_text = ''
 
         # Check if msgs from other players have been received
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     # print("Connection received!")
     # print("Type \'exit\' to kill")
 
-    # RxThread = threading.Thread(target = receive_msg, args = ([connection]))
+    # RxThread = threading.Thread(target = Rx_msg, args = ([connection]))
     # RxThread.start()
 
     pg.init()
