@@ -1,11 +1,10 @@
 import pygame as pg
 import sys
 import socket
-import threading
 import time
-import queue
 import os
 from pygame.locals import *
+from server import Server
 
 # Naming convention:
 # 'A' refers to 'me'
@@ -20,35 +19,6 @@ pg.init()
 FONT_SIZE = 18
 FONT = pg.font.Font(os.path.dirname(__file__)+"/fonts/CHNOPixelCodePro-Regular.ttf", FONT_SIZE)
 FONT_COLOR = (255,255,255)
-
-# Queue containing received messages
-received_msg_queue = queue.Queue()
-
-def Rx_msg(connection):
-    ''' Receive message from other players '''
-
-    while True:
-        received = connection.recv(1024)
-        if not received or received == ' ':
-            pass
-        
-        msg = received.decode()
-        if msg =='exit':
-            break
-        else:
-            print(f"Received: {msg}")
-            received_msg_queue.put(msg)
-
-    print("Rx thread: Finished execution.")
-
-def Tx_msg(connection, input_str):
-    ''' Transmit message to other players'''
-
-    msg = input_str.replace('b', '').encode()
-    if msg == ' ':
-        pass
-    else:
-        connection.sendall(msg)
 
 def draw_ui(screen):
     # Set up Screen
@@ -139,7 +109,7 @@ def configure():
     return screen, clock
 
 
-def main(Tx):
+def main(server):
     screen, clock = configure()
 
     input_text = '' # What Player A is typing
@@ -154,38 +124,38 @@ def main(Tx):
 
         # Broadcast message to other players if needed
         if should_Tx_msg:
-            Tx_msg(Tx, input_text)
+            server.Tx_msg(input_text)
             input_text = ''
 
         # Check if msgs from other players have been received
-        if not received_msg_queue.empty():
-            received_text = received_msg_queue.get_nowait()
+        if not server.received_msg_queue.empty():
+            received_text = server.received_msg_queue.get_nowait()
 
         draw_ui(screen)
         clock.tick(30)
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) != 2:
-    #     print("usage: %s [port] " % sys.argv[0] )
-    #     sys.exit(0)
+    if len(sys.argv) != 2:
+        print("usage: %s [port] " % sys.argv[0] )
+        sys.exit(0)
 
-    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    # port = int(sys.argv[1])
+    port = int(sys.argv[1])
 
-    # print("Awaiting connection...")
-    # s.bind(('', port))
-    # s.listen()
-    # (connection, addr) = s.accept() 
+    print("Awaiting connection...")
+    s.bind(('', port))
+    s.listen()
+    (connection, addr) = s.accept() 
 
-    # print("Connection received!")
-    # print("Type \'exit\' to kill")
+    print("Connection received!")
+    print("Type \'exit\' to kill")
 
-    # RxThread = threading.Thread(target = Rx_msg, args = ([connection]))
-    # RxThread.start()
+    # Start the server
+    server = Server(connection)
 
     pg.init()
-    main(None)
+    main(server)
     pg.quit()
