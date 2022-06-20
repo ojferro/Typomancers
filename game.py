@@ -17,6 +17,9 @@ WIN_HEIGHT = 960
 COLOR_PALETTE_A = [(74, 143, 231), (11, 57, 84), (116, 30, 153), (250, 169, 22)]
 COLOR_PALETTE_B = [(46, 41, 78), (215, 38, 61), (27, 153, 139), (244, 96, 54)]
 
+pg.init()
+FONT = pg.font.Font(os.path.dirname(__file__)+"/fonts/CHNOPixelCodePro-Regular.ttf", 32)
+FONT_COLOR = (255,255,255)
 
 # Queue containing received messages
 received_msg_queue = queue.Queue()
@@ -59,78 +62,102 @@ def make_rect(width_percent, height_percent, center_x_percent, center_y_percent,
 
     return rect
 
-
-def main(Tx):
-    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    base_path = os.path.dirname(__file__)
-    font = pg.font.Font(base_path+"/fonts/CHNOPixelCodePro-Regular.ttf", 32)
-
-    clock = pg.time.Clock()
-    text_input_color = pg.Color('dodgerblue2')
-    text_other_color = pg.Color('green')
-    text = ''
-    msg = ''
-
-    while True:
-        for event in pg.event.get():
+def keyboard_input(text):
+    should_Tx_msg = False
+    for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
             elif event.type == pg.KEYDOWN:
+                
+                # Enter key
                 if event.key == pg.K_RETURN:
-                    print(text)
-                    send_msg(Tx, text)
-                    text = ''
+                    should_Tx_msg = True
+                    break
+
+                # Backspace
                 elif event.key == pg.K_BACKSPACE:
-                    text = text[:-1]
+                    # Ctrl+Backspace (delete last word up until last space)
+                    if event.mod & pg.KMOD_CTRL:
+                        text = " ".join(text.strip().split(" ")[:-1]) + " "
+                    # Single Backspace
+                    else:
+                        text = text[:-1]
+                # Append key to text
                 else:
                     text += event.unicode
 
+    return text, should_Tx_msg
 
+def configure():
+    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    clock = pg.time.Clock()
+
+    pg.key.set_repeat(500, 30)
+
+    return screen, clock
+
+
+def main(Tx):
+    screen, clock = configure()
+
+    input_text = '' # What Player A is typing
+    received_text = 'Sample text' # Message received from another player
+
+    while True:
+        
+        # Get keyboard input
+        input_text, should_Tx_msg = keyboard_input(input_text)
+
+        # Broadcast message to other players if needed
+        if should_Tx_msg:
+            send_msg(Tx, input_text)
+            input_text = ''
+
+        # Check if msgs from other players have been received
+        if not received_msg_queue.empty():
+            received_text = received_msg_queue.get_nowait()
+
+
+        # Draw UI
         screen.fill((30, 30, 30))
 
-
-        # Draw text boxes
         textboxA = make_rect(0.65, 0.1, 0.4, 0.85)
         pg.draw.rect(screen, COLOR_PALETTE_A[0], textboxA)
 
         textboxB = make_rect(0.65, 0.1, 0.6, 0.15)
         pg.draw.rect(screen, COLOR_PALETTE_B[0], textboxB)
 
-        txt_input = font.render(text, True, text_input_color)
+        txt_input_r = FONT.render(input_text + "|", True, (255,255,255))
+        received_text_r = FONT.render(received_text, True, (255,255,255))
 
-        if not received_msg_queue.empty():
-            msg = received_msg_queue.get_nowait()
-
-        received_text = font.render(msg, True, text_other_color)
-
-        screen.blit(txt_input, (textboxA.midleft[0], textboxA.midleft[1]-font.get_height()//2))
-        screen.blit(received_text, (textboxB.midleft[0], textboxB.midleft[1]-font.get_height()//2))
+        screen.blit(txt_input_r, (textboxA.midleft[0], textboxA.midleft[1]-FONT.get_height()//2))
+        screen.blit(received_text_r, (textboxB.midleft[0], textboxB.midleft[1]-FONT.get_height()//2))
 
         pg.display.flip()
         clock.tick(30)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("usage: %s [port] " % sys.argv[0] )
-        sys.exit(0)
+    # if len(sys.argv) != 2:
+    #     print("usage: %s [port] " % sys.argv[0] )
+    #     sys.exit(0)
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    port = int(sys.argv[1])
+    # port = int(sys.argv[1])
 
-    print("Awaiting connection...")
-    s.bind(('', port))
-    s.listen()
-    (connection, addr) = s.accept() 
+    # print("Awaiting connection...")
+    # s.bind(('', port))
+    # s.listen()
+    # (connection, addr) = s.accept() 
 
-    print("Connection received!")
-    print("Type \'exit\' to kill")
+    # print("Connection received!")
+    # print("Type \'exit\' to kill")
 
-    RxThread = threading.Thread(target = receive_msg, args = ([connection]))
-    RxThread.start()
-    
+    # RxThread = threading.Thread(target = receive_msg, args = ([connection]))
+    # RxThread.start()
+
     pg.init()
-    main(connection)
+    main(None)
     pg.quit()
