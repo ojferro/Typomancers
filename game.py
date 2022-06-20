@@ -11,8 +11,8 @@ from pygame.locals import *
 # 'A' refers to 'me'
 # 'B' refers to 'other player'
 
-WIN_WIDTH = 1280
-WIN_HEIGHT = 960
+WIN_WIDTH = 1280/1.5
+WIN_HEIGHT = 960/1.5
 
 COLOR_PALETTE_A = [(74, 143, 231), (11, 57, 84), (116, 30, 153), (250, 169, 22)]
 COLOR_PALETTE_B = [(46, 41, 78), (215, 38, 61), (27, 153, 139), (244, 96, 54)]
@@ -47,7 +47,44 @@ def send_msg(connection, input_str):
     else:
         connection.sendall(msg)
 
-def make_rect(width_percent, height_percent, center_x_percent, center_y_percent, position=""):
+def draw_ui():
+    base_path = os.path.dirname(__file__)
+    font = pg.font.Font(base_path+"/fonts/CHNOPixelCodePro-Regular.ttf", 32)
+
+    #Set up Screen
+    screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT),pg.RESIZABLE)
+    screen.fill((10, 10, 10))
+    total_players = 4
+
+    #Draw Character Cards
+    for i in range(total_players):
+        character_card = make_rect(0.18, 0.3, (1/(total_players+1))*(i+1), 0.5)
+        pg.draw.rect(screen, COLOR_PALETTE_A[0], character_card,5)
+
+    #Draw Top Console
+    top_console = make_rect(0.9, 0.3, 0.5, 0.18)
+    pg.draw.rect(screen, COLOR_PALETTE_A[0], top_console,5)
+
+    #Draw Bottom Console
+    bottom_console = make_rect(0.9, 0.3, 0.5, 0.82)
+    pg.draw.rect(screen, COLOR_PALETTE_A[0], bottom_console,5)
+
+    #Labels
+    print_text(screen, "Spell Incantation", top_console)
+    print_text(screen, "Spell Incantation", top_console)
+
+    pg.display.flip()
+
+    
+def print_text (screen, text, console):
+    base_path = os.path.dirname(__file__)
+    font = pg.font.Font(base_path+"/fonts/CHNOPixelCodePro-Regular.ttf", 18)
+    text_color = pg.Color('white')
+    text_to_print = font.render(text, True, text_color)
+    screen.blit(text_to_print, (console.midleft[0]+(font.get_height()/2), console.topleft[1]+(font.get_height()/4)))
+
+
+def make_rect(width_percent, height_percent, center_x_percent, center_y_percent):
     ''' Top-left is 0,0 '''
 
     rect_w_px = int(WIN_WIDTH*width_percent)
@@ -117,23 +154,7 @@ def main(Tx):
         if not received_msg_queue.empty():
             received_text = received_msg_queue.get_nowait()
 
-
-        # Draw UI
-        screen.fill((30, 30, 30))
-
-        textboxA = make_rect(0.65, 0.1, 0.4, 0.85)
-        pg.draw.rect(screen, COLOR_PALETTE_A[0], textboxA)
-
-        textboxB = make_rect(0.65, 0.1, 0.6, 0.15)
-        pg.draw.rect(screen, COLOR_PALETTE_B[0], textboxB)
-
-        txt_input_r = FONT.render(input_text + "|", True, (255,255,255))
-        received_text_r = FONT.render(received_text, True, (255,255,255))
-
-        screen.blit(txt_input_r, (textboxA.midleft[0], textboxA.midleft[1]-FONT.get_height()//2))
-        screen.blit(received_text_r, (textboxB.midleft[0], textboxB.midleft[1]-FONT.get_height()//2))
-
-        pg.display.flip()
+        draw_ui()
         clock.tick(30)
 
 
