@@ -3,10 +3,10 @@ const quoteDisplayElement = document.getElementById('quoteDisplay')
 const quoteInputElement = document.getElementById('quoteInput')
 
 
-const maxTypingTime = 2000 // in milliseconds
-const gameStartCountdown = 30; // milliseconds
-const durationOfSpellSuccess = 1000; // in milliseconds
-const durationOfStun = 1000; // in milliseconds
+const maxTypingTime = 5000 // milliseconds
+const gameStartCountdown = 3000; // milliseconds
+const durationOfSpellSuccess = 1000; // milliseconds
+const durationOfStun = 1000; // milliseconds
 
 let totalTimerCount = 0;
 let stopTimerSignal = false;
