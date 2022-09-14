@@ -156,4 +156,17 @@ function getTimerDelta(startTime){
 }
 
 
+var img = new Image();
+img.src = './sprites/wizard.png';
+img.onload = function() {
+    var ctx = document.getElementById("opponent-canvas-1").getContext('2d');
+    ctx.drawImage(img, 0, 0, 100, 100);
+}
+
+var img = new Image();
+img.src = './sprites/wizard.png';
+img.onload = function() {
+    var ctx = document.getElementById("opponent-canvas-2").getContext('2d');
+    ctx.drawImage(img, 0, 0, 100, 100);
+}
 setGameStatus("start-game")

@@ -30,6 +30,30 @@ body, .quote-input {
     color: #ffffff;
 }
 
+.opponents-container
+{
+    position: fixed;
+    padding: 1rem;
+    width: 1000px;
+    height: 20%;
+    max-width: 90%;
+    top: 5%;
+}
+
+.console {
+    position: fixed;
+    background-color: var(--background);
+    border: 4px double var(--border);
+    padding: 1rem;
+    border-radius: .5rem;
+    color: #a7a7a7;
+    width: 1000px;
+    height: 30%;
+    max-width: 90%;
+    top: 18%;
+}
+
+
 .container {
     position: fixed;
     background-color: var(--background);
@@ -46,7 +70,8 @@ body, .quote-input {
     position: absolute;
     bottom: 18rem;
     font-size: 3rem;
-    color: #6dade2;
+    /* color: #6dade2; */
+    color: var(--primary);
     font-weight: bold;
 }
 
