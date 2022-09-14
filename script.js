@@ -16,12 +16,14 @@ quoteInputElement.addEventListener('input', () =>{
     const arrayValue = quoteInputElement.value.split('')
 
     let correct = true;
+    let incorrectCount = 0;
     arrayQuote.forEach((characterSpan, index) => {
         const character = arrayValue[index]
         if (character == null){
             characterSpan.classList.remove('correct')
             characterSpan.classList.remove('incorrect')
             correct = false
+            incorrectCount+=1
         } else if (character === characterSpan.innerText){
             characterSpan.classList.add('correct')
             characterSpan.classList.remove('incorrect')
@@ -29,6 +31,7 @@ quoteInputElement.addEventListener('input', () =>{
             characterSpan.classList.remove('correct')
             characterSpan.classList.add('incorrect')
             correct = false
+            incorrectCount+=1
         }
     })
 
@@ -51,9 +54,9 @@ function setGameStatus(status) {
     }
     else if (status === "correct-spell"){
         console.log('Spell successful');
-        gameStatus.innerText = "SPELL SUCCESSFUL"
-        gameStatus.classList.remove('incorrect-spell')
-        gameStatus.classList.add('correct-spell')
+        // gameStatus.innerText = "SPELL SUCCESSFUL"
+        // gameStatus.classList.remove('incorrect-spell')
+        // gameStatus.classList.add('correct-spell')
 
         stopTimerSignal = true; // Stop the counter routine
         timer.innerText = "SPELL SUCCESSFUL"
@@ -65,9 +68,9 @@ function setGameStatus(status) {
     } else if (status === "stunned-by-opponent")
     {
         console.log('Stunned by oponent');
-        gameStatus.innerText = "STUNNED BY OPPONENT"
-        gameStatus.classList.remove('correct-spell')
-        gameStatus.classList.add('incorrect-spell');
+        // gameStatus.innerText = "STUNNED BY OPPONENT"
+        // gameStatus.classList.remove('correct-spell')
+        // gameStatus.classList.add('incorrect-spell');
 
         timer.innerText = "STUNNED BY OPPONENT"
         quoteInputElement.value = null

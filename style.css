@@ -1,3 +1,16 @@
+@font-face {
+    font-family: retroFont;
+    src: url('Retro Gaming.ttf');
+}
+
+:root {
+    --primary: #1e90ff;
+    --border: #2052a8;
+    --accent: #000000;
+    --background: #000926;
+    --muted: #ffffff;
+  }
+
 * {
     box-sizing: border-box;
 }
@@ -9,18 +22,21 @@ body {
     /* min-height: 100vh; */
     /* margin-bottom: 10rem; */
     margin: 0;
-    background-color: #160045;
+    background-color: #000926;
 }
 
 body, .quote-input {
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family: retroFont, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: #ffffff;
 }
 
 .container {
     position: fixed;
-    background-color: #F0DB4F;
+    background-color: var(--background);
+    border: 4px double var(--border);
     padding: 1rem;
     border-radius: .5rem;
+    color: #a7a7a7;
     width: 1000px;
     max-width: 90%;
     bottom: 5%;
@@ -28,9 +44,9 @@ body, .quote-input {
 
 .timer {
     position: absolute;
-    top: 2rem;
+    bottom: 18rem;
     font-size: 3rem;
-    color: #F0DB4F;
+    color: #6dade2;
     font-weight: bold;
 }
 
@@ -41,8 +57,8 @@ body, .quote-input {
 }
 
 .quote-input {
-    background-color: transparent;
-    border: 2px solid #A1922E;
+    background-color: var(--background);
+    border: 4px double var(--border);
     outline: none;
     width: 100%;
     height: 8rem;
@@ -53,7 +69,8 @@ body, .quote-input {
 }
 
 .quote-input:focus{
-    border-color: black;
+    /* border-color: var(--border); */
+    border: 4px double var(--border);
 }
 
 .game-status {
@@ -62,20 +79,20 @@ body, .quote-input {
 }
 
 .correct {
-    color: green;
+    color: #436a88;
 }
 
 .incorrect {
-    color: red;
+    color: #888d91;
     text-decoration: underline;
 }
 
 .correct-spell {
-    color: rgb(64, 166, 0);
+    color: #6196bf;
     font-weight: bold;
 }
 
 .incorrect-spell {
-    color: rgb(212, 0, 0);
+    color: #6196bf;
     font-weight: bold;
 }
