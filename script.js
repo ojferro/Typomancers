@@ -1,4 +1,5 @@
 // const RANDOM_QUOTE_API_URL = 'http://asdfast.beobit.net/api/'; //'https://loremipsumgenerator.org/api';
+const gameStatusElement = document.getElementById('console')
 const quoteDisplayElement = document.getElementById('quoteDisplay')
 const quoteInputElement = document.getElementById('quoteInput')
 
@@ -12,10 +13,11 @@ const durationOfSpellSelection = 5000; //milliseconds
 const durationOfBattleAnimationPerSpell = 2000; //milliseconds
 
 let timerTime = -1;
+let timerIntervalID = null; // Time interval ID is used to kill a timer.
 
-let GAME_STATE = "start-game";
+let GAME_STATE = "parent-state";
 
-let totalTimerCount = 0;
+let totalTimerCount = 1;
 let stopTimerSignal = false;
 
 const myPlayerID = 0; //TODO: this is temporary, it should be auto assigned based on the order players join server
@@ -50,7 +52,7 @@ quoteInputElement.addEventListener('input', () =>{
         }
     })
 
-    if (GAME_STATE === "casting-spells")
+    if (GAME_STATE === "casting-spell")
     {
         // Set effectiveness percent
         spells[myPlayerID].updateSpell(
@@ -60,114 +62,31 @@ quoteInputElement.addEventListener('input', () =>{
             Math.max(0.0, 1.0-(incorrectLetterCount/arrayValue.length) )
         );
     }
-
-    if (correct && GAME_STATE === "selecting-spell"){
+    if (GAME_STATE === "selecting-spell" && arrayValue.length>0){
         selectSpell(arrayValue);
     }
 })
 
 function selectSpell(spell_id)
 {
+    console.log(spell_id[0])
     // TODO: randomly select the spells that they can pick from
-    spells_in_deck = {"a" : new Spell(-5.0, 1, -5, null), "b" : new Spell(-5.0, 1, -5, null), "c" : new Spell(-5.0, 1, -5, null), "d" : new Spell(-5.0, 1, -5, null)};
-    spells[myPlayerID] = spells_in_deck[spell_id]
-
-    // Update the current player's mana
-    players[myPlayerID].changeMana(spells_in_deck[spell_id].mana_cost);
-}
-
-function setGameStatus(status) {
-
-    var waitBeforeClear = 0; // milliseconds
-    // var timerIntervalID = null;
-    if (status === "start-game"){
-        GAME_STATE = "start-game";
-        renderNewQuote();
-        timer.innerText = "Game starting..."
-        quoteInputElement.value = null
-        quoteInputElement.disabled = true
-        
-        waitBeforeClear = gameStartCountdown;
-    }
-    // else if (status === "correct-spell"){
-    //     console.log('Spell successful');
-
-    //     stopTimerSignal = true; // Stop the counter routine
-    //     timer.innerText = "SPELL SUCCESSFUL"
-    //     quoteInputElement.value = null
-    //     quoteInputElement.disabled = true
-
-    //     waitBeforeClear = durationOfSpellSuccess;
-
-    // } else if (status === "stunned-by-opponent")
-    // {
-    //     console.log('Stunned by oponent');
-
-    //     timer.innerText = "STUNNED BY OPPONENT"
-    //     quoteInputElement.value = null
-    //     quoteInputElement.disabled = true
-
-    //     waitBeforeClear = durationOfStun;
-
-    // }
-    // else if (status === "selecting-spell")
-    // {
-    //     GAME_STATE = "selecting-spell";
-    //     console.log('Selecting spell');
-
-    //     stopTimerSignal = true; // Stop the counter routine
-    //     timer.innerText = "SELECTING SPELL"
-    //     quoteInputElement.value = null
-    //     quoteInputElement.disabled = true
-
-    //     waitBeforeClear = durationOfSpellSelection;
-    // }
-    else if (status === "battle-time")
+    if (["a","b","c"].includes(spell_id[0]))
     {
-        GAME_STATE = "battle-time";
-        console.log('Battle animation');
-        timer.innerText = "BATTLE TIME!"
-
-        quoteInputElement.value = null
+        quoteInputElement.value = spell_id[0]
         quoteInputElement.disabled = true
 
-        players.forEach(player =>{
-            spells.forEach(spell =>{
-                player.applySpell(spell)
-            })
-        })
-        
-        waitBeforeClear = durationOfBattleAnimationPerSpell*numPlayers;
-    }
-    else {
-        console.log("WARNING: UNKNOWN STATUS PASSED INTO setGameStatus()");
-    }
+        console.log("In selectSpell. You chose: " + spell_id);
+        spells_in_deck = {"a" : new Spell(-5.0, 1, -5, null), "b" : new Spell(-5.0, 1, -5, null), "c" : new Spell(-5.0, 1, -5, null), "d" : new Spell(-5.0, 1, -5, null)};
+        spells[myPlayerID] = spells_in_deck[spell_id]
 
-    // Clear status after a delay, then start next round
-    setTimeout(function(){ 
-        console.log("Done delay, clearing")
-        timer.innerText = ""
-        gameStatus.innerText = ""
-        gameStatus.classList.remove('incorrect-spell')
-        gameStatus.classList.remove('correct-spell')
-
+        // Update the current player's mana
+        players[myPlayerID].changeMana(spells_in_deck[spell_id].mana_cost);
+    } else {
+        console.log("Unknown spell selection. Try again.")
         quoteInputElement.value = null
-        quoteInputElement.disabled = false
-        quoteInputElement.focus();
-
-        // Update state machine
-        if (GAME_STATE === "selecting-spell"){
-            GAME_STATE = "casting-spell"
-            // Restart next rount
-            renderNewQuote();
-            timerIntervalID = startTimer(maxTypingTime)
-        }
-        else if (GAME_STATE === "battle-time")
-        {
-            GAME_STATE = "selecting-spell"
-        }
-    }, waitBeforeClear);
-
+        gameStatusElement.innerHTML = gameStatusElement.innerHTML + "\n Unknown spell selection. Try again."
+    }
 }
 
 function getRandomQuote() {
@@ -180,8 +99,7 @@ function getRandomQuote() {
     return "Lorem ipsum";
 }
 
-async function renderNewQuote() {
-    const quote = await getRandomQuote()
+async function renderNewQuote(quote) {
     quoteDisplayElement.innerHTML = ''
     quote.split('').forEach(character =>{
         const characterSpan = document.createElement('span')
@@ -197,26 +115,21 @@ function startTimer(maxTimeMS) {
     }
     timer.innerText = maxTimeMS/1000.0;
     startTime = new Date()
-    var timerIntervalID = setInterval(() => {
+    timerTime = 0
+    timerIntervalID = setInterval(() => {
         timerTime = ((maxTimeMS - getTimerDelta(startTime))/1000.0).toFixed(1);
 
-        // if (timerTime <=0)
-        // {
-            // timerTime = 0
-            // totalTimerCount -= 1;
-            // setGameStatus("battle-time")
-            // clearInterval(timerIntervalID); // Stop the counter routine until restarted elsewhere
-            // return timerIntervalID;
-        // }else 
         if (stopTimerSignal)
         {
             stopTimerSignal = false;
-            totalTimerCount -= 1;
             clearInterval(timerIntervalID); // Stop the counter routine until restarted elsewhere
             return timerIntervalID;
         }
 
-        timer.innerText = timerTime;
+        if (timerTime >= 0.000)
+        {
+            timer.innerText = timerTime;
+        }
     }, 100)
 
     return timerIntervalID
@@ -242,13 +155,33 @@ img.onload = function() {
 }
 // setGameStatus("start-game")
 
+function nextGameState()
+{
+    if (GAME_STATE === "parent-state"){
+        GAME_STATE = "start-game"
+    }else if (GAME_STATE === "start-game"){
+        GAME_STATE = "selecting-spell";
+    } else if (GAME_STATE === "selecting-spell"){
+        GAME_STATE = "casting-spell";
+    } else if (GAME_STATE === "casting-spell"){
+        GAME_STATE = "battle-time";
+    }else if (GAME_STATE === "battle-time"){
+        GAME_STATE = "selecting-spell";
+    } else
+    {
+        throw "UNKNOWN GAME STATE!";
+    }
+}
 function mainLoop() {
     if (timerTime < 0.0)
     {
         clearInterval(timerIntervalID);
+        totalTimerCount -= 1;
+
+        // Update the GAME_STATE
+        nextGameState();
         
         // Clear game status
-        console.log("Done delay, clearing")
         timer.innerText = ""
         gameStatus.innerText = ""
         gameStatus.classList.remove('incorrect-spell')
@@ -259,46 +192,62 @@ function mainLoop() {
         quoteInputElement.focus();
 
         if (GAME_STATE === "start-game"){
-            console.log("GAME_STATE: start-game, changing to selecting-spell")
-            GAME_STATE = "selecting-spell";
-
-            renderNewQuote();
+            console.log("GAME_STATE: start-game")
+    
             timer.innerText = "Game starting..."
+            gameStatusElement.innerText = "Game starting..."
             quoteInputElement.value = null
             quoteInputElement.disabled = true
-
+    
             timerIntervalID = startTimer(gameStartCountdown)
         }
         else if (GAME_STATE === "selecting-spell")
         {
             // Do nothing, the event manager takes care of this
             // TODO: Draw the potential spells to choose from here
-            timer.innerText = "a) Spell 1, b) Spell 2, c) Spell 3"
-            console.log("GAME_STATE: selecting-spell, changing to battle-time")
+            console.log("GAME_STATE: selecting-spell")
+    
+            const quote = "a) Spell 1, b) Spell 2, c) Spell 3"
+            renderNewQuote(quote);
+            gameStatusElement.innerHTML = "Spell selection - Type in the spell ID: " + quote;
 
-            GAME_STATE = "battle-time";
-            renderNewQuote();
-            timerIntervalID = startTimer(durationOfBattleAnimationPerSpell*numPlayers)
+            quoteInputElement.value = null
+            quoteInputElement.disabled = false
+
+            timerIntervalID = startTimer(durationOfSpellSelection)
+        }
+        else if (GAME_STATE === "casting-spell")
+        {
+            console.log('GAME_STATE: casting-spell');
+            // timer.innerText = "BATTLE TIME!"
+            gameStatusElement.innerHTML = "Cast your spells! Type quickly and accurately";
+    
+            quoteInputElement.value = null
+            quoteInputElement.disabled = false
+
+            renderNewQuote(getRandomQuote())
+    
+            timerIntervalID = startTimer(maxTypingTime);
         }
         else if (GAME_STATE === "battle-time")
         {
             console.log('GAME_STATE: battle-time');
-            timer.innerText = "BATTLE TIME!"
-
+            // timer.innerText = "BATTLE TIME!"
+            gameStatusElement.innerHTML = "BATTLE TIME!";
+    
             quoteInputElement.value = null
             quoteInputElement.disabled = true
-
+    
             players.forEach(player =>{
                 spells.forEach(spell =>{
                     player.applySpell(spell)
                 })
             })
-
-            GAME_STATE = "selecting-spell";
-            timerIntervalID = startTimer(durationOfSpellSelection);
+    
+            timerIntervalID = startTimer(durationOfBattleAnimationPerSpell*numPlayers);
         }
         else {
-            console.log("WARNING: UNKNOWN GAME_STATE");
+            throw "WARNING: UNKNOWN GAME_STATE";
         }
     }
 }
