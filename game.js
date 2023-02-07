@@ -3,7 +3,9 @@ const gameStatusElement = document.getElementById('console')
 const quoteDisplayElement = document.getElementById('quoteDisplay')
 const quoteInputElement = document.getElementById('quoteInput')
 
-const numPlayers = 2;
+let ws = JSON.parse(sessionStorage.getItem("ws"));
+
+const numPlayers = 2; // TODO: Get from Server
 
 const maxTypingTime = 5000 // milliseconds
 const gameStartCountdown = 3000; // milliseconds
@@ -20,7 +22,7 @@ let GAME_STATE = "parent-state";
 let totalTimerCount = 1;
 let stopTimerSignal = false;
 
-const myPlayerID = 0; //TODO: this is temporary, it should be auto assigned based on the order players join server
+let myPlayerID = sessionStorage.getItem("clientID"); // TODO get from server
 
 let players = [];
 let spells  = [];
@@ -251,4 +253,7 @@ function mainLoop() {
         }
     }
 }
+
+
+init()
 setInterval(mainLoop, 10);

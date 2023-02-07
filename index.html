@@ -5,22 +5,63 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link rel="stylesheet" href="style.css">
-        <script src="utils.js"></script>
-        <script src="game.js" defer></script>
+        <script src="mainMenu.js" defer></script>
         <title>TypoMancers</title>
+
     </head>
     <body>
-        <div class="opponents-container" id="opponents-container" style = "text-align:center;">
-            <canvas id="opponent-canvas-1" width="100px" height="100px"></canvas>
-            <canvas id="opponent-canvas-buffer" width="50px" height="100px"></canvas>
-            <canvas id="opponent-canvas-2" width="100px" height="100px"></canvas>
+        <div>
+            <div class="main-menu-title">
+                <div class="padding">
+                    <div>TypoMancers</div>
+                </div>
+                <div class="padding">
+                    <div>Main Menu</div>
+                </div>
+            </div>
+
+            <div class="padding"></div>
+            
+            <div class="padding">
+                <div class="main-menu-input-box">
+                    <div class="main-menu-input-text">Enter server:</div>
+                    <textarea class="main-menu-input" id="serverInput" autofocus></textarea>
+                </div>
+            </div>
+
+            <div class="padding">
+                <div class="main-menu-input-box">
+                    <div class="main-menu-input-text">Enter username:</div>
+                    <textarea class="main-menu-input" id="usernameInput" autofocus></textarea>
+                </div>
+            </div>
+
+            <div class="padding">
+                <div class="main-menu-input-box">
+                    <div class="main-menu-input-text">Select character:</div>
+                    <textarea class="main-menu-input" id="characterInput" autofocus></textarea>
+                    <div class="sprite-row">
+                        <figure class="main-menu-sprite">
+                            <img class="sprite" src="sprites/wizard1.png" alt="Wizard1">
+                            <figcaption>1</figcaption>
+                        </figure>
+                        <figure class="main-menu-sprite">
+                            <img class="sprite" src="sprites/wizard1.png" alt="Wizard1">
+                            <figcaption>2</figcaption>
+                        </figure>
+                        <figure class="main-menu-sprite">
+                            <img class="sprite" src="sprites/wizard1.png" alt="Wizard1">
+                            <figcaption>3</figcaption>
+                        </figure>
+                    </div>
+                
+                </div>
+            </div>
+
+            <div class="center-align">
+                <button class="main-menu-button" id="mainMenuButton">Enter</button>
+            </div>
         </div>
-        <div class="console" id="console">Default game status</div>
-        <div class="timer" id="timer">10</div>
-        <div class="container">
-            <div class="game-status" id="gameStatus"> </div>
-            <div class="quote-display" id="quoteDisplay">quoteDisplay</div>
-            <textarea class="quote-input" id="quoteInput" autofocus>quoteInput</textarea>
-        </div>
+
     </body>
 </html>

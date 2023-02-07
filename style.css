@@ -25,7 +25,7 @@ body {
     background-color: #000926;
 }
 
-body, .quote-input {
+body, .quote-input, .main-menu-input{
     font-family: retroFont, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     color: #ffffff;
 }
@@ -120,4 +120,98 @@ body, .quote-input {
 .incorrect-spell {
     color: #6196bf;
     font-weight: bold;
+}
+
+
+/* Main menu stuff */
+
+.main-menu-title {
+    font-size: 3rem;
+    color: var(--primary);
+    font-weight: bold;
+    text-align: center;
+}
+
+.padding {
+    padding: 1rem;
+    text-align: center;
+    margin: 0 auto;
+    position: relative;
+    
+}
+
+.main-menu-input-box {
+    /* position: fixed; */
+    margin: 0 auto;
+    background-color: var(--background);
+    border: 4px double var(--border);
+    padding: 1rem;
+    border-radius: .5rem;
+    color: #a7a7a7;
+    /* width: 90%; */
+    width: 800px;
+    max-width: 1000px;
+    max-height: 10%;
+    bottom: 5%;
+    text-align: center;
+}
+.main-menu-input-text {
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+.main-menu-button {
+    border: 4px double var(--border);
+    border-radius: 4px;
+    background-color: var(--background);
+    outline: 0;
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: bold;
+    font-family: retroFont, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 8px;
+    display: inline-block;
+    min-height: 50px;
+    min-width: 100px;
+    transition: background-color .24s,box-shadow .24s;
+}
+
+.center-align{
+    text-align: center;  
+}
+
+.main-menu-input {
+    background-color: var(--background);
+    border: 4px double var(--border);
+    outline: none;
+    width: 100%;
+    height: 3rem;
+    margin: auto;
+    resize: none;
+    padding: .5rem 1rem;
+    font-size: 1rem;
+}
+
+.main-menu-input:focus{
+    /* border-color: var(--border); */
+    border: 4px double var(--border);
+}
+
+.main-menu-sprite{
+
+    float: left;
+    width: 30%;
+
+    padding: 5px;
+}
+
+.sprite-row{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+.sprite{
+    width: 100px;
 }
